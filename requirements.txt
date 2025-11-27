@@ -1,0 +1,2 @@
+# This file redirects to the actual requirements in the eventsphere subdirectory
+-r eventsphere/requirements.txt
