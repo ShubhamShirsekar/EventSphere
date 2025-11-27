@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex align-items-center mb-4">
+        <a href="/my-listed-events" class="btn btn-outline-secondary me-3">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+        <h1 class="mb-0"><i class="bi bi-people"></i> Attendees for "{{ event.title }}"</h1>
+    </div>
+    
+    {% if bookings %}
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Total Attendees: {{ bookings|length }}</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Purchase Date</th>
+                            <th scope="col">Amount Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ booking.user_id.first_name }} {{ booking.user_id.last_name }}</td>
+                            <td>{{ booking.user_id.email|default:booking.user_id.username }}</td>
+                            <td>{{ booking.id }}</td>
+                            <td>${{ event.ticket_price }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                            <td><strong>{{ bookings|length }} tickets</strong></td>
+                            <td><strong>${{ total_revenue }}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No one has purchased tickets for this event yet.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

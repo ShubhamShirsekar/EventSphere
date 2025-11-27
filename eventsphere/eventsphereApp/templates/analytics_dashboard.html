@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4"><i class="bi bi-graph-up"></i> Analytics Dashboard</h1>
+    
+    {% if has_data %}
+    
+    <!-- Top Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card text-white bg-primary h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-uppercase mb-3">Total Revenue</h6>
+                    <h1 class="display-3 fw-bold">${{ total_revenue|floatformat:0 }}</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-white h-100" style="background-color: #0d6efd;">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-uppercase mb-3">Total Tickets Sold</h6>
+                    <h1 class="display-3 fw-bold">{{ total_tickets_sold }}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top 5 Events by Tickets Sold -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Top 5 Events by Tickets Sold</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="topEventsChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top 5 Categories by Revenue -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart-fill"></i> Top 5 Categories by Revenue</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoriesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Revenue Distribution Pie Chart -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart-fill"></i> Revenue Distribution by Event</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <div class="alert alert-info text-center py-5">
+        <i class="bi bi-info-circle" style="font-size: 3rem;"></i>
+        <h3 class="mt-3">{{ message }}</h3>
+        <p class="text-muted">Create events and start selling tickets to see your analytics!</p>
+        <a href="/create-event" class="btn btn-primary mt-3">Create Your First Event</a>
+    </div>
+    {% endif %}
+</div>
+
+{% if has_data %}
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+// Blue color palette
+const blueShades = [
+    '#0d6efd', '#3182ce', '#4299e1', '#63b3ed', '#90cdf4',
+    '#bee3f8', '#5a67d8', '#667eea', '#7c3aed', '#8b5cf6'
+];
+
+// Top 5 Events by Tickets Sold (Horizontal Bar Chart)
+const topEventsCtx = document.getElementById('topEventsChart').getContext('2d');
+const topEventsChart = new Chart(topEventsCtx, {
+    type: 'bar',
+    data: {
+        labels: [
+            {% for event in top_5_events %}
+            '{{ event.title|truncatechars:30 }}'{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Tickets Sold',
+            data: [
+                {% for event in top_5_events %}
+                {{ event.tickets_sold }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            backgroundColor: blueShades.slice(0, 5),
+            borderColor: blueShades.slice(0, 5),
+            borderWidth: 1
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: false
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
+        }
+    }
+});
+
+// Top 5 Categories by Revenue (Vertical Bar Chart)
+const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
+const categoriesChart = new Chart(categoriesCtx, {
+    type: 'bar',
+    data: {
+        labels: [
+            {% for category, revenue in top_5_categories %}
+            '{{ category }}'{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Revenue ($)',
+            data: [
+                {% for category, revenue in top_5_categories %}
+                {{ revenue }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            backgroundColor: blueShades.slice(0, 5),
+            borderColor: blueShades.slice(0, 5),
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Revenue Distribution Pie Chart
+const revenueDistCtx = document.getElementById('revenueDistributionChart').getContext('2d');
+const revenueDistChart = new Chart(revenueDistCtx, {
+    type: 'pie',
+    data: {
+        labels: [
+            {% for event in event_revenue_percentage %}
+            '{{ event.title|truncatechars:20 }}'{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Revenue %',
+            data: [
+                {% for event in event_revenue_percentage %}
+                {{ event.percentage }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            backgroundColor: blueShades,
+            borderColor: '#ffffff',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 15,
+                    font: {
+                        size: 11
+                    }
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.parsed || 0;
+                        const revenueData = [
+                            {% for event in event_revenue_percentage %}
+                            { revenue: {{ event.revenue }} }{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        ];
+                        const revenue = revenueData[context.dataIndex]?.revenue || 0;
+                        return label + ': ' + value.toFixed(2) + '% ($' + revenue.toLocaleString() + ')';
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endif %}
+
+{% endblock %}

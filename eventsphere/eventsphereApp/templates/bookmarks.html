@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block activePageBookmarks %}link-secondary{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4"><i class="bi bi-heart-fill text-danger"></i> Bookmarked Events</h1>
+    
+    {% if events %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for event in events %}
+        <div class="col shadow-sm">
+            <div class="card position-relative">
+                
+                <!-- BOOKMARK BUTTON -->
+                <button class="btn btn-link position-absolute top-0 end-0 m-2 p-0 text-danger" 
+                        onclick="toggleBookmark({{ event.id }}, this)" 
+                        style="z-index: 10; background: none; border: none;">
+                    <i class="bi bi-heart-fill" style="font-size: 1.5rem;"></i>
+                </button>
+                
+                <img class="card-img-top" src="{{ event.image }}" alt="Card image">
+                <div class="card-body">
+                  <h4 class="card-title">{{ event.title }}</h4>
+                  <h6 class="card-text text-danger">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                        <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                      </svg>
+                      {{ event.city }}
+                  </h6>
+                  <h6 class="card-text text-primary">{{ event.starts_at }}</h6>
+                  <p class="card-text" style="max-height: 7em; overflow:clip;">{{ event.description }}</p>
+                  <div class="btn-group">
+                    <a href="/view-event?id={{ event.id }}"><button type="button" class="btn btn-sm btn-primary rounded-pill">Register now</button></a>
+                    <a href="/view-event?id={{ event.id }}"><button type="button" class="btn btn-sm text-primary">Learn more</button></a>
+                  </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-4">
+        <i class="bi bi-info-circle"></i> You haven't bookmarked any events yet.
+        <a href="/events" class="alert-link">Browse events</a> to start bookmarking!
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleBookmark(eventId, button) {
+    const csrfToken = '{{ csrf_token }}';
+    fetch('/bookmark/' + eventId + '/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.bookmarked) {
+            // Remove the card from view with animation
+            const card = button.closest('.col');
+            card.style.transition = 'opacity 0.3s';
+            card.style.opacity = '0';
+            setTimeout(() => {
+                card.remove();
+                
+                // Check if no events left
+                if (document.querySelectorAll('.col').length === 0) {
+                    location.reload();
+                }
+            }, 300);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}

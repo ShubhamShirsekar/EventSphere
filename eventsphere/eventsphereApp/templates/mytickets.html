@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>My Tickets</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Ticket ID</th>
+                <th>Event Name</th>
+                <th>Date & Time</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets_data %}
+            <tr {% if ticket.is_cancelled %}class="table-secondary"{% endif %}>
+                <td>
+                    {% if ticket.is_cancelled %}
+                        <span class="text-muted">{{ ticket.id }}</span>
+                    {% else %}
+                        <a href="/ticket?id={{ ticket.id }}">{{ ticket.id }}</a>
+                    {% endif %}
+                </td>
+                <td>{{ ticket.event_name }}</td>
+                <td>{{ ticket.dateTime }}</td>
+                <td>{{ ticket.location }}</td>
+                <td>
+                    {% if ticket.is_cancelled %}
+                        <span class="badge bg-danger">Cancelled</span>
+                    {% else %}
+                        <span class="badge bg-success">Active</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if ticket.can_cancel %}
+                        <form method="POST" action="{% url 'cancel_ticket' ticket.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel this ticket?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Cancel Ticket</button>
+                        </form>
+                    {% elif ticket.is_cancelled %}
+                        <span class="text-muted">Already cancelled</span>
+                    {% else %}
+                        <span class="text-muted">Cannot cancel</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

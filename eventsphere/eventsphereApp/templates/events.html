@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block activePageEvents %}link-secondary{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <form action="/search/" method="get">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Search by name or location" aria-label="Search" aria-describedby="search-btn" name="query" value="{{ search_query|default:'' }}">
+                    <input type="date" name="date" class="form-control ms-2" placeholder="Search by date" style="max-width: 200px;" value="{{ search_date|default:'' }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary ms-2" type="submit" id="search-btn">Search</button>
+                        <a href="/events/" class="btn btn-secondary ms-2">Reset</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- EVENTS SECTION -->
+<div class="album py-5 bg-body-tertiary">
+    <div class="container">
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+      {% for event in event_records %}
+        <div class="col shadow-sm">
+            <div class="card position-relative">  <!-- ADD position-relative HERE -->
+                
+                <!-- ADD THIS BOOKMARK BUTTON -->
+                {% if user.is_authenticated %}
+                <button class="btn btn-link position-absolute top-0 end-0 m-2 p-0 {% if event.id in bookmarked_event_ids %}text-danger{% endif %}" 
+                        onclick="toggleBookmark({{ event.id }}, this)" 
+                        style="z-index: 10; background: none; border: none;">
+                    <i class="bi {% if event.id in bookmarked_event_ids %}bi-heart-fill{% else %}bi-heart{% endif %}" 
+                       style="font-size: 1.5rem;"></i>
+                </button>
+                {% endif %}
+                <!-- END BOOKMARK BUTTON -->
+                
+                <img class="card-img-top" src="{{ event.image }}" alt="Card image">
+                <div class="card-body">
+                  <h4 class="card-title">{{ event.title }}</h4>
+                  <h6 class="card-text text-danger">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                        <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                      </svg>
+                      {{ event.city }}
+                  </h6>
+                  <h6 class="card-text text-primary">{{ event.starts_at }}</h6>
+                  <p class="card-text" style="max-height: 7em; overflow:clip;">{{ event.description }}</p>
+                  <div class="btn-group">
+                    <a href="/view-event?id={{ event.id }}"><button type="button" class="btn btn-sm btn-primary rounded-pill">Register now</button></a>
+                    <a href="/view-event?id={{ event.id }}"><button type="button" href="/view-event?id={{ event.id }}" class="btn btn-sm text-primary">Learn more</button></a>
+                    {% if event.user_id == user and event.tickets_sold|default:0 == 0 %}
+                    <a href="{% url 'delete_event' event.id %}" 
+                       class="btn btn-sm btn-danger rounded-pill"
+                       onclick="return confirm('Are you sure you want to delete this event?');">
+                       Delete
+                    </a>
+                    {% endif %}
+                  </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+      </div>
+    </div>
+  </div>
+<!-- EVENTS SECTION -->
+<script>
+function toggleBookmark(eventId, button) {
+    const csrfToken = '{{ csrf_token }}';
+    fetch('/bookmark/' + eventId + '/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        const icon = button.querySelector('i');
+        if (data.bookmarked) {
+            icon.classList.remove('bi-heart');
+            icon.classList.add('bi-heart-fill');
+            button.classList.add('text-danger');
+        } else {
+            icon.classList.remove('bi-heart-fill');
+            icon.classList.add('bi-heart');
+            button.classList.remove('text-danger');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}

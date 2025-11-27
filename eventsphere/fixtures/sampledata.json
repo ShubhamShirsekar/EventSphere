@@ -1,0 +1,53 @@
+[
+  {
+    "model": "eventsphereApp.event",
+    "pk": 1,
+    "fields": {
+      "title": "Music Concert",
+      "city": "New York",
+      "user_id": 1,
+      "starts_at": "2025-11-15T19:00:00Z",
+      "ends_at": "2025-11-15T22:00:00Z",
+      "address": "123 Music Ave, New York, NY",
+      "pincode": 10001,
+      "category": "Concert",
+      "description": "An amazing live music concert featuring popular bands.",
+      "image": "concert.jpg",
+      "ticket_price": 50
+    }
+  },
+  {
+    "model": "eventsphereApp.event",
+    "pk": 2,
+    "fields": {
+      "title": "Tech Conference 2025",
+      "city": "San Francisco",
+      "user_id": 1,
+      "starts_at": "2025-12-01T09:00:00Z",
+      "ends_at": "2025-12-03T17:00:00Z",
+      "address": "456 Tech Blvd, San Francisco, CA",
+      "pincode": 94103,
+      "category": "Conference",
+      "description": "Annual tech conference with talks and workshops.",
+      "image": "techconf.jpg",
+      "ticket_price": 100
+    }
+  },
+  {
+    "model": "eventsphereApp.event",
+    "pk": 3,
+    "fields": {
+      "title": "Art Exhibition",
+      "city": "Chicago",
+      "user_id": 1,
+      "starts_at": "2025-10-20T10:00:00Z",
+      "ends_at": "2025-10-20T18:00:00Z",
+      "address": "789 Art St, Chicago, IL",
+      "pincode": 60601,
+      "category": "Exhibition",
+      "description": "Showcasing contemporary art from local artists.",
+      "image": "artexhibit.jpg",
+      "ticket_price": 25
+    }
+  }
+]

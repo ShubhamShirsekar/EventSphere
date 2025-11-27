@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventSphere</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <div class="container">
+      <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+        <div class="col-md-3 mb-2 mb-md-0">
+          <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+            <h4>EventSphere</h4>
+          </a>
+        </div>
+        <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+          <li>
+            <a href="/" class="nav-link px-2 {% block activePageHome %}{% endblock %}">Home</a>
+          </li>
+          <li>
+            <a href="/events" class="nav-link px-2 {% block activePageEvents %}{% endblock %}">Events</a>
+          </li> {% if user.is_authenticated %} <li>
+            <a href="/bookmarks" class="nav-link px-2 {% block activePageBookmarks %}{% endblock %}">Bookmarks </a>
+          </li> {% endif %} <li>
+            <a href="/about" class="nav-link px-2 {% block activePageAbout %}{% endblock %}">About</a>
+          </li>
+        </ul> {% if user.is_authenticated %} <div class="col-lg-5">
+          <div class="d-flex align-items-center justify-content-end">
+            <a href="/create-event">
+              <button type="button" class="btn btn-primary">Create Event</button>
+            </a>
+            <button class="btn text-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false"> {% load static %} <img src="https://i.ibb.co/yB4wz4t/user-icon.png" alt="User Image" class="rounded-circle" style="width: 40px; height: 40px;">
+              <span class="ml-2" style="text-decoration: none;">
+                <b>{{ user.first_name }}</b>
+              </span>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="userDropdown">
+                <a class="dropdown-item" href="/my-tickets">My Tickets</a>
+                <a class="dropdown-item" href="/my-listed-events">My Listed Events</a>
+                <a class="dropdown-item" href="/analytics-dashboard">Analytics Dashboard</a>  <!-- ADD THIS LINE -->
+                <a class="dropdown-item" href="/profile">Profile</a>
+                <a class="dropdown-item" href="/logout">Logout</a>
+            </div>
+          </div>
+        </div> {% else %} <div class="col-md-3 text-end">
+          <a href="/login">
+            <button type="button" class="btn btn-outline-primary me-2">Login</button>
+          </a>
+          <a href="/signup">
+            <button type="button" class="btn btn-primary">Sign-up</button>
+          </a>
+        </div> {% endif %}
+      </header>
+    </div>
+    <!-- /NAVBAR --> {% block content %} {% endblock %}
+    <!-- FOOTER -->
+    <div class="container">
+      <footer class="py-3 my-4">
+        <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+          <li class="nav-item">
+            <a href="/" class="nav-link px-2 text-body-secondary">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="/events" class="nav-link px-2 text-body-secondary">Events</a>
+          </li>
+          <li class="nav-item">
+            <a href="/about" class="nav-link px-2 text-body-secondary">About</a>
+          </li>
+        </ul>
+        <p class="text-center text-body-secondary">EventSphere</p>
+      </footer>
+    </div>
+    <!-- FOOTER -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  </body>
+</html>

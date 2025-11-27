@@ -1,0 +1,56 @@
+<!-- To show a specific ticket -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card text-center">
+        <div class="card-header">
+            Event Ticket
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">{{ ticket.ename }}</h5>
+            <p class="card-text">{{ ticket.dateTime }}</p>
+            <p class="card-text">{{ ticket.location }}</p>
+            <hr>
+            <p class="card-text">Ticket Holder: {{ ticket.holder }}</p>
+            <!-- <p class="card-text">Ticket Type: General Admission</p> -->
+            <p class="card-text">Ticket ID: {{ ticket.id }}</p>
+            <hr>
+            <div id="qrcode"></div>
+            <hr>
+            <div class="text-center">
+                <a href="#" class="btn btn-primary" onclick="downloadAsImage()">Download as Image</a>
+            </div>
+        </div>
+        <div class="card-footer text-muted">
+            This ticket is valid for single use only.
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    const ticketID = "{{ ticket.id }}"; // Replace with the actual ticket ID
+
+    const qrcode = new QRCode(document.getElementById("qrcode"), {
+        text: ticketID,
+        width: 128,
+        height: 128
+    });
+
+    document.querySelector("#qrcode > img").style.margin = 'auto';
+
+    function downloadAsImage() {
+        const cardBody = document.querySelector(".card-body");
+
+        html2canvas(cardBody).then(canvas => {
+            const imgData = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = imgData;
+            link.download = "ticket.png";
+            link.click();
+        });
+    }
+</script>
+{% endblock %}

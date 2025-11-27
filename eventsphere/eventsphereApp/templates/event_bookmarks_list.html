@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex align-items-center mb-4">
+        <a href="/my-listed-events" class="btn btn-outline-secondary me-3">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+        <h1 class="mb-0"><i class="bi bi-bookmark-heart-fill text-danger"></i> Bookmarks for "{{ event.title }}"</h1>
+    </div>
+    
+    {% if bookmarks %}
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">Total Bookmarks: {{ bookmarks|length }}</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Bookmarked On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bookmark in bookmarks %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ bookmark.user.first_name }} {{ bookmark.user.last_name }}</td>
+                            <td>{{ bookmark.user.email }}</td>
+                            <td>{{ bookmark.created_at|date:"M d, Y - h:i A" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="alert alert-info mt-4">
+        <i class="bi bi-info-circle"></i> These users have bookmarked your event and may be interested in attending.
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No one has bookmarked this event yet.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
