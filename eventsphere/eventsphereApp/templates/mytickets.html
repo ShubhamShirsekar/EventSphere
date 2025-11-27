@@ -12,53 +12,103 @@
             </div>
         {% endfor %}
     {% endif %}
-    
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Ticket ID</th>
-                <th>Event Name</th>
-                <th>Date & Time</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for ticket in tickets_data %}
-            <tr {% if ticket.is_cancelled %}class="table-secondary"{% endif %}>
-                <td>
-                    {% if ticket.is_cancelled %}
-                        <span class="text-muted">{{ ticket.id }}</span>
-                    {% else %}
-                        <a href="/ticket?id={{ ticket.id }}">{{ ticket.id }}</a>
-                    {% endif %}
-                </td>
-                <td>{{ ticket.event_name }}</td>
-                <td>{{ ticket.dateTime }}</td>
-                <td>{{ ticket.location }}</td>
-                <td>
-                    {% if ticket.is_cancelled %}
-                        <span class="badge bg-danger">Cancelled</span>
-                    {% else %}
-                        <span class="badge bg-success">Active</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if ticket.can_cancel %}
-                        <form method="POST" action="{% url 'cancel_ticket' ticket.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel this ticket?');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-danger">Cancel Ticket</button>
-                        </form>
-                    {% elif ticket.is_cancelled %}
-                        <span class="text-muted">Already cancelled</span>
-                    {% else %}
-                        <span class="text-muted">Cannot cancel</span>
-                    {% endif %}
-                </td>
-            </tr>
+
+    {% if grouped_tickets %}
+        <div class="row">
+            {% for group in grouped_tickets %}
+            <div class="col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-header" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#event-{{ group.event_id }}">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <img src="{{ group.event_image }}" alt="{{ group.event_name }}" class="img-fluid rounded" style="max-height: 80px; object-fit: cover;">
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="mb-0">{{ group.event_name }}</h5>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar"></i> {{ group.dateTime|date:"M d, Y H:i" }} | 
+                                    <i class="bi bi-geo-alt"></i> {{ group.location }}
+                                </small>
+                            </div>
+                            <div class="col-md-3">
+                                <span class="badge bg-primary">{{ group.total_tickets }} Ticket{{ group.total_tickets|pluralize }}</span>
+                                {% if group.active_tickets > 0 %}
+                                    <span class="badge bg-success">{{ group.active_tickets }} Active</span>
+                                {% endif %}
+                                {% if group.cancelled_tickets > 0 %}
+                                    <span class="badge bg-danger">{{ group.cancelled_tickets }} Cancelled</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-1 text-end">
+                                <i class="bi bi-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="event-{{ group.event_id }}" class="collapse">
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Ticket ID</th>
+                                        <th>Booked At</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ticket in group.tickets %}
+                                    <tr {% if ticket.is_cancelled %}class="table-secondary"{% endif %}>
+                                        <td>
+                                            {% if ticket.is_cancelled %}
+                                                <span class="text-muted">#{{ ticket.id }}</span>
+                                            {% else %}
+                                                <a href="/ticket?id={{ ticket.id }}">#{{ ticket.id }}</a>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ ticket.booked_at|date:"M d, Y H:i" }}</td>
+                                        <td>
+                                            {% if ticket.is_cancelled %}
+                                                <span class="badge bg-danger">Cancelled</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if ticket.can_cancel %}
+                                                <form method="POST" action="{% url 'cancel_ticket' ticket.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel this ticket?');">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+                                                </form>
+                                            {% elif ticket.is_cancelled %}
+                                                <span class="text-muted small">Already cancelled</span>
+                                            {% else %}
+                                                <span class="text-muted small">Cannot cancel</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>You haven't booked any tickets yet.</p>
+            <a href="/events" class="btn btn-primary">Browse Events</a>
+        </div>
+    {% endif %}
 </div>
+
+<style>
+    .card-header:hover {
+        background-color: #f8f9fa;
+    }
+    .collapse .card-body {
+        background-color: #fafafa;
+    }
+</style>
 {% endblock %}
