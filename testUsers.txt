@@ -1,0 +1,7 @@
+5 test users with credentials:
+
+alice@example.com / testpass123
+bob@example.com / testpass123
+charlie@example.com / testpass123
+diana@example.com / testpass123
+eve@example.com / testpass123
