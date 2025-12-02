@@ -227,20 +227,44 @@ def myTicketsList(request):
         user_id = request.user.id
         # for that userid get the tickets record
         ticket_records = Booking.objects.filter(user_id=user_id).select_related('event_id')
-        tickets_data = []
+        
+        # Group tickets by event
+        grouped_tickets = {}
         for t_record in ticket_records:
-            ticket = {}
             event_record = t_record.event_id
-            ticket['id'] = t_record.id
-            ticket['event_name'] = event_record.title
-            ticket['dateTime'] = event_record.starts_at
-            ticket['location'] = event_record.city
-            ticket['is_cancelled'] = t_record.is_cancelled
-            ticket['can_cancel'] = t_record.can_cancel()
-            tickets_data.append(ticket)
+            event_id = event_record.id
+            
+            if event_id not in grouped_tickets:
+                grouped_tickets[event_id] = {
+                    'event_name': event_record.title,
+                    'dateTime': event_record.starts_at,
+                    'location': event_record.city,
+                    'event_image': event_record.image,
+                    'tickets': []
+                }
+            
+            ticket = {
+                'id': t_record.id,
+                'is_cancelled': t_record.is_cancelled,
+                'can_cancel': t_record.can_cancel(),
+                'booked_at': t_record.booked_at
+            }
+            grouped_tickets[event_id]['tickets'].append(ticket)
+        
+        # Convert to list and calculate counts
+        grouped_tickets_list = []
+        for event_id, data in grouped_tickets.items():
+            data['event_id'] = event_id
+            data['total_tickets'] = len(data['tickets'])
+            data['active_tickets'] = sum(1 for t in data['tickets'] if not t['is_cancelled'])
+            data['cancelled_tickets'] = sum(1 for t in data['tickets'] if t['is_cancelled'])
+            grouped_tickets_list.append(data)
+        
+        # Sort by most recent booking
+        grouped_tickets_list.sort(key=lambda x: max(t['booked_at'] for t in x['tickets']), reverse=True)
         
         # pass to the template
-        return render(request, 'mytickets.html', context={'tickets_data': tickets_data})
+        return render(request, 'mytickets.html', context={'grouped_tickets': grouped_tickets_list})
     else:
         return redirect('/login')
 
