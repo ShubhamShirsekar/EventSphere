@@ -1,5 +1,7 @@
 # EventSphere 
 
+🌐 **Live Demo**: [https://eventsphere-vm0q.onrender.com/](https://eventsphere-vm0q.onrender.com/)
+
 **EventSphere** is a comprehensive event management and ticketing platform built with Django. It provides a seamless experience for both event organizers and attendees, making event discovery, booking, and management effortless.
 
 ##  About
