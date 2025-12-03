@@ -34,14 +34,14 @@
                             <td>{{ booking.user_id.first_name }} {{ booking.user_id.last_name }}</td>
                             <td>{{ booking.user_id.email|default:booking.user_id.username }}</td>
                             <td>{{ booking.id }}</td>
-                            <td>{{ booking.booking_date }}</td>
+                            <td>{{ booking.booked_at }}</td>
                             <td>${{ event.ticket_price }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                     <tfoot class="table-light">
                         <tr>
-                            <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                            <td colspan="4" class="text-end"><strong>Total:</strong></td>
                             <td><strong>{{ bookings|length }} tickets</strong></td>
                             <td><strong>${{ total_revenue }}</strong></td>
                         </tr>
