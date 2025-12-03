@@ -22,7 +22,8 @@
                             <th scope="col">#</th>
                             <th scope="col">Name</th>
                             <th scope="col">Email</th>
-                            <th scope="col">Purchase Date</th>
+                            <th scope="col">Booking ID</th>
+                            <th scope="col">Booking date</th>
                             <th scope="col">Amount Paid</th>
                         </tr>
                     </thead>
@@ -33,6 +34,7 @@
                             <td>{{ booking.user_id.first_name }} {{ booking.user_id.last_name }}</td>
                             <td>{{ booking.user_id.email|default:booking.user_id.username }}</td>
                             <td>{{ booking.id }}</td>
+                            <td>{{ booking.booking_date }}</td>
                             <td>${{ event.ticket_price }}</td>
                         </tr>
                         {% endfor %}
